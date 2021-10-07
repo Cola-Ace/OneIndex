@@ -1,5 +1,15 @@
 <?php view::layout('layout')?>
 <?php 
+    function isImage($filename){
+      $types = '/(\.jpg$|\.png$|\.jpeg$)/i';
+      if(preg_match($types, trim($filename))){
+          return true;
+      }else{
+          return false;
+      }
+    }
+  ?>
+<?php 
 function file_ico($item){
   $ext = strtolower(pathinfo($item['name'], PATHINFO_EXTENSION));
   if(in_array($ext,['bmp','jpg','jpeg','png','gif'])){
@@ -8,7 +18,7 @@ function file_ico($item){
   if(in_array($ext,['mp4','mkv','webm','avi','mpg', 'mpeg', 'rm', 'rmvb', 'mov', 'wmv', 'mkv', 'asf'])){
   	return "ondemand_video";
   }
-  if(in_array($ext,['ogg','mp3','wav','flac'])){
+  if(in_array($ext,['ogg','mp3','wav'])){
   	return "audiotrack";
   }
   return "insert_drive_file";
@@ -46,7 +56,7 @@ function file_ico($item){
 	font-size:100px;
 	display: block;
 	margin-top: 40px;
-	color: #7e7e7e;
+	color: #7ab5ef;
 }
 .thumb .mdui-list-item span{
 	float: left;
@@ -57,6 +67,7 @@ function file_ico($item){
     top: 180px;
 }
 </style>
+
 <div class="nexmoe-item">
 <div class="mdui-row">
 	<ul class="mdui-list">
@@ -94,28 +105,46 @@ function file_ico($item){
 			<?php else:?>
 		<li class="mdui-list-item file mdui-ripple">
 			<a href="<?php echo get_absolute_path($root.$path).rawurlencode($item['name']);?>" target="_blank">
-			  <div class="mdui-col-xs-12 mdui-col-sm-7 mdui-text-truncate">
+              <?php if(isImage($item['name']) and $_COOKIE["image_mode"] == "1"):?>
+			  <img class="mdui-img-fluid" src="<?php echo get_absolute_path($root.$path).rawurlencode($item['name']); ?>">
+              <?php else:?>
+              <div class="mdui-col-xs-12 mdui-col-sm-7 mdui-text-truncate">
 				<i class="mdui-icon material-icons"><?php echo file_ico($item);?></i>
 		    	<span><?php e($item['name']);?></span>
 			  </div>
 			  <div class="mdui-col-sm-3 mdui-text-right"><?php echo date("Y-m-d H:i:s", $item['lastModifiedDateTime']);?></div>
 			  <div class="mdui-col-sm-2 mdui-text-right"><?php echo onedrive::human_filesize($item['size']);?></div>
+              <?php endif;?>
 		  	</a>
 		</li>
 			<?php endif;?>
 		<?php endforeach;?>
+
+		  <?php if($totalpage > 1 ):?>
+		  <li class="mdui-list-item th">
+		    <div class="mdui-col-sm-6 mdui-left mdui-text-left">
+		      <?php if(($page-1) >= 1 ):?>
+		        <a href="<?php echo preg_replace('/\/$/', '', "$root"); ?><?php e($path) ?>.page-<?php e($page-1) ?>/" class="mdui-btn mdui-btn-raised">上一页</a>
+		      <?php endif;?>
+		      <?php if(($page+1) <= $totalpage ):?>
+		        <a href="<?php echo preg_replace('/\/$/', '', "$root"); ?><?php e($path) ?>.page-<?php e($page+1) ?>/" class="mdui-btn mdui-btn-raised">下一页</a>
+		      <?php endif;?>
+		    </div>
+		    <div class="mdui-col-sm-6 mdui-right mdui-text-right">
+		      <div class="mdui-right mdui-text-right"><span class="mdui-chip-title">Page: <?php e($page);?>/<?php e($totalpage);?></span></div>
+		    </div>
+		  </li>
+		  <?php endif;?>
 	</ul>
 </div>
 </div>
 <?php if($readme):?>
-<div class="nexmoe-item">
-	<div class="mdui-typo" style="padding: 20px;">
-		<div class="mdui-chip">
-		  <span class="mdui-chip-icon"><i class="mdui-icon material-icons">face</i></span>
-		  <span class="mdui-chip-title">README.md</span>
-		</div>
-		<?php e($readme);?>
+<div class="mdui-typo mdui-shadow-3" style="padding: 20px;margin: 20px; 0">
+	<div class="mdui-chip">
+	  <span class="mdui-chip-icon"><i class="mdui-icon material-icons">face</i></span>
+	  <span class="mdui-chip-title">README.md</span>
 	</div>
+	<?php e($readme);?>
 </div>
 <?php endif;?>
 </div>
@@ -206,7 +235,42 @@ $(function(){
         $(this).attr("data-order", sort_order_to).text("expand_" + sort_order_to);
     });
 
+  	
+  
 });
+  
+var ckname='image_mode';
+function getCookie(name) 
+{
+    var arr,reg=new RegExp("(^| )"+name+"=([^;]*)(;|$)");
+    if(arr=document.cookie.match(reg))
+        return unescape(arr[2]); 
+    else
+        return null; 
+} 
+function setCookie(key,value,day){
+	var exp = new Date(); 
+	exp.setTime(exp.getTime() - 1); 
+	var cval=getCookie(key); 
+	if(cval!=null) 
+	document.cookie= key + "="+cval+";expires="+exp.toGMTString(); 
+	var date = new Date();
+	var nowDate = date.getDate();
+	date.setDate(nowDate + day);
+	var cookie = key+"="+value+"; expires="+date;
+	document.cookie = cookie;
+	return cookie;
+}
+$('#image_view').on('click', function () {
+	if($(this).prop('checked') == true){
+		setCookie(ckname,1,1);
+		window.location.href=window.location.href;
+	}else{
+		setCookie(ckname,0,1);
+		window.location.href=window.location.href;
+	}
+});
+  
 </script>
 <a href="javascript:thumb();" class="mdui-fab mdui-fab-fixed mdui-ripple mdui-color-theme-accent"><i class="mdui-icon material-icons">format_list_bulleted</i></a>
 <?php view::end('content');?>
