@@ -5,9 +5,9 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0,maximum-scale=1.0, user-scalable=no"/>
 	<title><?php e(config('site_name').' - '.$title);?></title>
 	<link rel="shortcut icon" href="//download.99couple.top/theme/favicon.ico">
-	<link rel="stylesheet" href="//cdnjs.loli.net/ajax/libs/mdui/0.4.1/css/mdui.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/zdhxiong/mdui@v1/dist/css/mdui.min.css">
 	<link rel="stylesheet" href="//download.99couple.top/theme/style.css">
-	<script src="//cdnjs.loli.net/ajax/libs/mdui/0.4.1/js/mdui.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/gh/zdhxiong/mdui@v1/dist/js/mdui.min.js"></script>
 </head>
 <body class="mdui-theme-primary-blue-grey mdui-theme-accent-blue">
 	<header class="nav">
